@@ -1,0 +1,180 @@
+/* You can add global styles to this file, and also import other style files */
+@import '@angular/material/theming';
+
+// Define custom theme colors
+$casa-valores-primary: mat-palette($mat-indigo);
+$casa-valores-accent: mat-palette($mat-pink, A200, A100, A400);
+$casa-valores-warn: mat-palette($mat-red);
+
+// Create the theme object
+$casa-valores-theme: mat-light-theme((
+  color: (
+    primary: $casa-valores-primary,
+    accent: $casa-valores-accent,
+    warn: $casa-valores-warn,
+  )
+));
+
+// Include theme styles for core and each component used in your app
+@include mat-core();
+@include mat-all-component-themes($casa-valores-theme);
+
+/* Global Styles */
+html, body { 
+  height: 100%; 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif; 
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+.mb-16 {
+  margin-bottom: 16px;
+}
+
+.p-16 {
+  padding: 16px;
+}
+
+.elevation-2 {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Card Styles */
+.info-card {
+  margin: 16px 0;
+  padding: 16px;
+}
+
+.metric-card {
+  text-align: center;
+  padding: 24px;
+  
+  .metric-value {
+    font-size: 2em;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  
+  .metric-label {
+    color: rgba(0,0,0,0.6);
+    font-size: 0.9em;
+  }
+}
+
+/* Table Styles */
+.data-table {
+  width: 100%;
+  margin-top: 16px;
+}
+
+/* Form Styles */
+.form-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* Navigation Styles */
+.nav-spacer {
+  flex: 1 1 auto;
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Dashboard Styles */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.dashboard-card {
+  min-height: 200px;
+}
+
+/* Chart Styles */
+.chart-container {
+  position: relative;
+  height: 300px;
+  margin: 16px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 8px;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .metric-card .metric-value {
+    font-size: 1.5em;
+  }
+}
+
+/* Loading Spinner */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+/* Status Colors */
+.status-positive {
+  color: #4caf50;
+}
+
+.status-negative {
+  color: #f44336;
+}
+
+.status-neutral {
+  color: #757575;
+}
+
+/* Utility Classes */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.no-margin {
+  margin: 0;
+}
+
+.no-padding {
+  padding: 0;
+}

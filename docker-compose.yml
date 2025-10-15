@@ -1,0 +1,206 @@
+version: '3.8'
+
+services:
+  # Databases
+  mysql:
+    image: mysql:8.0
+    container_name: casa_valores_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: casa_valores
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: app_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./infrastructure/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - casa_valores_network
+
+  mongodb:
+    image: mongo:6.0
+    container_name: casa_valores_mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: adminpassword
+      MONGO_INITDB_DATABASE: casa_valores_docs
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - casa_valores_network
+
+  redis:
+    image: redis:7.0-alpine
+    container_name: casa_valores_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - casa_valores_network
+
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    container_name: casa_valores_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: adminpassword
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - casa_valores_network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./backend/api-gateway
+      dockerfile: Dockerfile
+    container_name: casa_valores_gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql://app_user:app_password@mysql:3306/casa_valores
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET_KEY=your-super-secret-jwt-key-change-in-production
+    depends_on:
+      - mysql
+      - redis
+      - rabbitmq
+    networks:
+      - casa_valores_network
+
+  # User Management Service
+  user-service:
+    build:
+      context: ./backend/user-service
+      dockerfile: Dockerfile
+    container_name: casa_valores_user_service
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=mysql://app_user:app_password@mysql:3306/casa_valores
+      - REDIS_URL=redis://redis:6379/1
+      - JWT_SECRET_KEY=your-super-secret-jwt-key-change-in-production
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - casa_valores_network
+
+  # Trading Service
+  trading-service:
+    build:
+      context: ./backend/trading-service
+      dockerfile: Dockerfile
+    container_name: casa_valores_trading_service
+    ports:
+      - "8002:8000"
+    environment:
+      - DATABASE_URL=mysql://app_user:app_password@mysql:3306/casa_valores
+      - REDIS_URL=redis://redis:6379/2
+      - RABBITMQ_URL=amqp://admin:adminpassword@rabbitmq:5672/
+    depends_on:
+      - mysql
+      - redis
+      - rabbitmq
+    networks:
+      - casa_valores_network
+
+  # Market Data Service
+  market-data-service:
+    build:
+      context: ./backend/market-data-service
+      dockerfile: Dockerfile
+    container_name: casa_valores_market_data_service
+    ports:
+      - "8003:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/3
+      - MONGODB_URL=mongodb://admin:adminpassword@mongodb:27017/casa_valores_docs?authSource=admin
+    depends_on:
+      - redis
+      - mongodb
+    networks:
+      - casa_valores_network
+
+  # Portfolio Service
+  portfolio-service:
+    build:
+      context: ./backend/portfolio-service
+      dockerfile: Dockerfile
+    container_name: casa_valores_portfolio_service
+    ports:
+      - "8004:8000"
+    environment:
+      - DATABASE_URL=mysql://app_user:app_password@mysql:3306/casa_valores
+      - REDIS_URL=redis://redis:6379/4
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - casa_valores_network
+
+  # Risk Management Service
+  risk-service:
+    build:
+      context: ./backend/risk-service
+      dockerfile: Dockerfile
+    container_name: casa_valores_risk_service
+    ports:
+      - "8005:8000"
+    environment:
+      - DATABASE_URL=mysql://app_user:app_password@mysql:3306/casa_valores
+      - RABBITMQ_URL=amqp://admin:adminpassword@rabbitmq:5672/
+    depends_on:
+      - mysql
+      - rabbitmq
+    networks:
+      - casa_valores_network
+
+  # Compliance Service
+  compliance-service:
+    build:
+      context: ./backend/compliance-service
+      dockerfile: Dockerfile
+    container_name: casa_valores_compliance_service
+    ports:
+      - "8006:8000"
+    environment:
+      - MONGODB_URL=mongodb://admin:adminpassword@mongodb:27017/casa_valores_docs?authSource=admin
+      - DATABASE_URL=mysql://app_user:app_password@mysql:3306/casa_valores
+    depends_on:
+      - mongodb
+      - mysql
+    networks:
+      - casa_valores_network
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: casa_valores_frontend
+    ports:
+      - "4200:80"
+    environment:
+      - API_BASE_URL=http://api-gateway:8000
+    depends_on:
+      - api-gateway
+    networks:
+      - casa_valores_network
+
+volumes:
+  mysql_data:
+  mongodb_data:
+  redis_data:
+  rabbitmq_data:
+
+networks:
+  casa_valores_network:
+    driver: bridge

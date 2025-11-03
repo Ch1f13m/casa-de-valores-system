@@ -39,10 +39,11 @@ import { AuthService } from '../../../core/services/auth.service';
           <!-- Información de credenciales demo -->
           <div class="demo-credentials">
             <h4>🔑 Credenciales de Demo:</h4>
-            <p><strong>Administrador:</strong> admin / admin</p>
-            <p><strong>Broker:</strong> broker / broker123</p>
+            <p><strong>Administrador:</strong> admin / admin <span class="mfa-badge">🔒 2FA</span></p>
+            <p><strong>Broker:</strong> broker / broker123 <span class="mfa-badge">🔒 2FA</span></p>
             <p><strong>Inversor:</strong> investor / investor123</p>
             <p><strong>Demo:</strong> demo / demo</p>
+            <p class="mfa-note"><small>💡 Código 2FA para usuarios con 🔒: <strong>123456</strong></small></p>
           </div>
           
           <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
@@ -86,10 +87,15 @@ import { AuthService } from '../../../core/services/auth.service';
         </mat-card-content>
         
         <mat-card-actions>
-          <p class="register-link">
-            ¿No tienes cuenta? 
-            <a routerLink="/auth/register">Regístrate aquí</a>
-          </p>
+          <div class="card-actions">
+            <a routerLink="/auth/forgot-password" class="forgot-link">
+              ¿Olvidaste tu contraseña?
+            </a>
+            <p class="register-link">
+              ¿No tienes cuenta? 
+              <a routerLink="/auth/register">Regístrate aquí</a>
+            </p>
+          </div>
         </mat-card-actions>
       </mat-card>
     </div>
@@ -130,6 +136,22 @@ import { AuthService } from '../../../core/services/auth.service';
       color: #666;
     }
 
+    .mfa-badge {
+      background: #ff9800;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      margin-left: 8px;
+    }
+
+    .mfa-note {
+      margin-top: 12px !important;
+      padding-top: 12px;
+      border-top: 1px solid #e0e0e0;
+      color: #3f51b5 !important;
+    }
+
     .form-field {
       width: 100%;
       margin-bottom: 16px;
@@ -141,9 +163,26 @@ import { AuthService } from '../../../core/services/auth.service';
       margin-top: 16px;
     }
 
+    .card-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .forgot-link {
+      color: #3f51b5;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .forgot-link:hover {
+      text-decoration: underline;
+    }
+
     .register-link {
       text-align: center;
-      margin: 16px 0 0 0;
+      margin: 8px 0 0 0;
     }
 
     .register-link a {
@@ -188,59 +227,70 @@ export class LoginComponent {
   onSubmit() {
     if (this.loginForm.valid) {
       this.loading = true;
-      const { username, password } = this.loginForm.value;
+      const { username, password, mfa_code } = this.loginForm.value;
       
-      // Credenciales predeterminadas
-      if (username === 'admin' && password === 'admin') {
-        this.loading = false;
-        // Guardar estado de autenticación en localStorage
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('currentUser', JSON.stringify({
-          username: 'admin',
-          role: 'admin',
-          fullName: 'Administrador del Sistema'
-        }));
-        
-        this.snackBar.open('¡Bienvenido Administrador!', 'Cerrar', { 
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
-        this.router.navigate(['/dashboard']);
-        return;
-      }
-      
-      // Credenciales adicionales para demo
+      // Lista de usuarios con sus credenciales y si requieren 2FA
       const validCredentials = [
-        { username: 'broker', password: 'broker123', role: 'broker', fullName: 'Broker Principal' },
-        { username: 'investor', password: 'investor123', role: 'investor', fullName: 'Inversor Demo' },
-        { username: 'demo', password: 'demo', role: 'investor', fullName: 'Usuario Demo' }
+        { username: 'admin', password: 'admin', role: 'admin', fullName: 'Administrador del Sistema', requires2FA: true },
+        { username: 'broker', password: 'broker123', role: 'broker', fullName: 'Broker Principal', requires2FA: true },
+        { username: 'investor', password: 'investor123', role: 'investor', fullName: 'Inversor Demo', requires2FA: false },
+        { username: 'demo', password: 'demo', role: 'investor', fullName: 'Usuario Demo', requires2FA: false }
       ];
       
       const user = validCredentials.find(cred => 
         cred.username === username && cred.password === password
       );
       
-      if (user) {
+      if (!user) {
         this.loading = false;
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('currentUser', JSON.stringify({
-          username: user.username,
-          role: user.role,
-          fullName: user.fullName
-        }));
-        
-        this.snackBar.open(`¡Bienvenido ${user.fullName}!`, 'Cerrar', { 
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
-        this.router.navigate(['/dashboard']);
-      } else {
-        this.loading = false;
-        this.snackBar.open('Credenciales incorrectas. Use admin/admin', 'Cerrar', { 
+        this.snackBar.open('Credenciales incorrectas. Prueba: admin/admin', 'Cerrar', { 
           duration: 5000,
           panelClass: ['error-snackbar']
         });
+        return;
       }
+
+      // Si el usuario requiere 2FA y aún no se ha solicitado
+      if (user.requires2FA && !this.requiresMFA && !mfa_code) {
+        this.loading = false;
+        this.requiresMFA = true;
+        this.loginForm.get('mfa_code')?.setValidators([Validators.required, Validators.minLength(6)]);
+        this.loginForm.get('mfa_code')?.updateValueAndValidity();
+        this.snackBar.open('Ingresa tu código de 2FA (usa: 123456 para demo)', 'Cerrar', { 
+          duration: 5000,
+          panelClass: ['info-snackbar']
+        });
+        return;
+      }
+
+      // Validar código 2FA si es requerido
+      if (user.requires2FA && this.requiresMFA) {
+        // En demo, aceptamos 123456 como código válido
+        if (mfa_code !== '123456') {
+          this.loading = false;
+          this.snackBar.open('Código 2FA incorrecto. Usa: 123456', 'Cerrar', { 
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
+          return;
+        }
+      }
+
+      // Login exitoso
+      this.loading = false;
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('currentUser', JSON.stringify({
+        username: user.username,
+        role: user.role,
+        fullName: user.fullName,
+        has2FA: user.requires2FA
+      }));
+      
+      this.snackBar.open(`¡Bienvenido ${user.fullName}!`, 'Cerrar', { 
+        duration: 3000,
+        panelClass: ['success-snackbar']
+      });
+      this.router.navigate(['/dashboard']);
     }
   }
 }

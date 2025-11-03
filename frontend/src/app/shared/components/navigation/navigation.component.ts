@@ -75,7 +75,17 @@ import { AuthService } from '../../../core/services/auth.service';
             <span matListItemTitle>Riesgo</span>
           </a>
           
+          <a mat-list-item routerLink="/reports" routerLinkActive="active">
+            <mat-icon matListItemIcon>description</mat-icon>
+            <span matListItemTitle>Reportes</span>
+          </a>
+          
           <mat-divider></mat-divider>
+          
+          <a mat-list-item routerLink="/admin" routerLinkActive="active">
+            <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
+            <span matListItemTitle>Administración</span>
+          </a>
           
           <a mat-list-item routerLink="/profile" routerLinkActive="active">
             <mat-icon matListItemIcon>person</mat-icon>

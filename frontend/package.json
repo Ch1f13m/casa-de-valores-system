@@ -19,18 +19,19 @@
     "@angular/core": "^17.0.0",
     "@angular/forms": "^17.0.0",
     "@angular/material": "^17.0.0",
+    "@angular/material-moment-adapter": "^17.0.0",
     "@angular/platform-browser": "^17.0.0",
     "@angular/platform-browser-dynamic": "^17.0.0",
     "@angular/router": "^17.0.0",
     "@angular/service-worker": "^17.0.0",
     "chart.js": "^4.4.0",
+    "moment": "^2.29.0",
     "ng2-charts": "^5.0.0",
+    "qrcode": "^1.5.4",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0",
-    "zone.js": "~0.14.0",
     "socket.io-client": "^4.7.0",
-    "@angular/material-moment-adapter": "^17.0.0",
-    "moment": "^2.29.0"
+    "tslib": "^2.3.0",
+    "zone.js": "~0.14.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.0.0",

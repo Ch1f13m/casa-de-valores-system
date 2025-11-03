@@ -13,5 +13,13 @@ export const authRoutes: Routes = [
   {
     path: 'register',
     loadComponent: () => import('./register/register.component').then(m => m.RegisterComponent)
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () => import('./forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+  },
+  {
+    path: '2fa-setup',
+    loadComponent: () => import('./two-factor-setup/two-factor-setup.component').then(m => m.TwoFactorSetupComponent)
   }
 ];

@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/spinner';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
@@ -54,8 +54,7 @@ interface PortfolioSummary {
     MatSnackBarModule,
     MatTabsModule,
     MatSelectModule,
-    MatFormFieldModule,
-    BaseChartDirective
+    MatFormFieldModule
   ],
   template: `
     <div class="portfolio-container">
@@ -225,11 +224,10 @@ interface PortfolioSummary {
                   <mat-card-title>Distribución por Sectores</mat-card-title>
                 </mat-card-header>
                 <mat-card-content>
-                  <canvas baseChart
-                          [data]="sectorChartData"
-                          [type]="'doughnut'"
-                          [options]="chartOptions">
-                  </canvas>
+                  <div class="chart-placeholder">
+                    <p>Gráfico de sectores se mostrará aquí</p>
+                    <p>Distribución: Technology (52%), Automotive (19%), E-commerce (10%)</p>
+                  </div>
                 </mat-card-content>
               </mat-card>
 
@@ -291,11 +289,10 @@ interface PortfolioSummary {
               </mat-card-header>
               
               <mat-card-content>
-                <canvas baseChart
-                        [data]="performanceChartData"
-                        [type]="'line'"
-                        [options]="lineChartOptions">
-                </canvas>
+                <div class="chart-placeholder">
+                  <p>Gráfico de rendimiento se mostrará aquí</p>
+                  <p>Período: {{ selectedPeriod }}</p>
+                </div>
                 
                 <div class="performance-metrics">
                   <div class="metric-row">
@@ -566,6 +563,18 @@ interface PortfolioSummary {
 
     mat-card-header {
       margin-bottom: 16px;
+    }
+
+    .chart-placeholder {
+      padding: 40px;
+      text-align: center;
+      background-color: #f5f5f5;
+      border-radius: 8px;
+      color: #666;
+    }
+
+    .chart-placeholder p {
+      margin: 8px 0;
     }
   `]
 })

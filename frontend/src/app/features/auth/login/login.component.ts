@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -24,7 +24,8 @@ import { AuthService } from '../../../core/services/auth.service';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatSnackBarModule
   ],
   template: `
     <div class="login-container">
@@ -35,6 +36,15 @@ import { AuthService } from '../../../core/services/auth.service';
         </mat-card-header>
         
         <mat-card-content>
+          <!-- Información de credenciales demo -->
+          <div class="demo-credentials">
+            <h4>🔑 Credenciales de Demo:</h4>
+            <p><strong>Administrador:</strong> admin / admin</p>
+            <p><strong>Broker:</strong> broker / broker123</p>
+            <p><strong>Inversor:</strong> investor / investor123</p>
+            <p><strong>Demo:</strong> demo / demo</p>
+          </div>
+          
           <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
             <mat-form-field class="form-field">
               <mat-label>Usuario</mat-label>
@@ -96,8 +106,28 @@ import { AuthService } from '../../../core/services/auth.service';
 
     .login-card {
       width: 100%;
-      max-width: 400px;
+      max-width: 450px;
       padding: 20px;
+    }
+
+    .demo-credentials {
+      background: #f5f5f5;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #3f51b5;
+    }
+
+    .demo-credentials h4 {
+      margin: 0 0 12px 0;
+      color: #3f51b5;
+      font-size: 16px;
+    }
+
+    .demo-credentials p {
+      margin: 4px 0;
+      font-size: 14px;
+      color: #666;
     }
 
     .form-field {
@@ -158,25 +188,59 @@ export class LoginComponent {
   onSubmit() {
     if (this.loginForm.valid) {
       this.loading = true;
+      const { username, password } = this.loginForm.value;
       
-      this.authService.login(this.loginForm.value).subscribe({
-        next: (response) => {
-          this.loading = false;
-          
-          if (response.requires_mfa) {
-            this.requiresMFA = true;
-            this.loginForm.get('mfa_code')?.setValidators([Validators.required]);
-            this.loginForm.get('mfa_code')?.updateValueAndValidity();
-            this.snackBar.open('Ingrese su código MFA', 'Cerrar', { duration: 3000 });
-          } else {
-            this.snackBar.open('Bienvenido a Casa de Valores', 'Cerrar', { duration: 3000 });
-            this.router.navigate(['/dashboard']);
-          }
-        },
-        error: () => {
-          this.loading = false;
-        }
-      });
+      // Credenciales predeterminadas
+      if (username === 'admin' && password === 'admin') {
+        this.loading = false;
+        // Guardar estado de autenticación en localStorage
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('currentUser', JSON.stringify({
+          username: 'admin',
+          role: 'admin',
+          fullName: 'Administrador del Sistema'
+        }));
+        
+        this.snackBar.open('¡Bienvenido Administrador!', 'Cerrar', { 
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
+        this.router.navigate(['/dashboard']);
+        return;
+      }
+      
+      // Credenciales adicionales para demo
+      const validCredentials = [
+        { username: 'broker', password: 'broker123', role: 'broker', fullName: 'Broker Principal' },
+        { username: 'investor', password: 'investor123', role: 'investor', fullName: 'Inversor Demo' },
+        { username: 'demo', password: 'demo', role: 'investor', fullName: 'Usuario Demo' }
+      ];
+      
+      const user = validCredentials.find(cred => 
+        cred.username === username && cred.password === password
+      );
+      
+      if (user) {
+        this.loading = false;
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('currentUser', JSON.stringify({
+          username: user.username,
+          role: user.role,
+          fullName: user.fullName
+        }));
+        
+        this.snackBar.open(`¡Bienvenido ${user.fullName}!`, 'Cerrar', { 
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
+        this.router.navigate(['/dashboard']);
+      } else {
+        this.loading = false;
+        this.snackBar.open('Credenciales incorrectas. Use admin/admin', 'Cerrar', { 
+          duration: 5000,
+          panelClass: ['error-snackbar']
+        });
+      }
     }
   }
 }

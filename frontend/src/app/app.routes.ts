@@ -1,10 +1,9 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/dashboard',
+    redirectTo: '/auth/login',
     pathMatch: 'full'
   },
   {
@@ -13,36 +12,30 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard',
-    loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.dashboardRoutes),
-    canActivate: [authGuard]
+    loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
   },
   {
     path: 'portfolio',
-    loadChildren: () => import('./features/portfolio/portfolio.routes').then(m => m.portfolioRoutes),
-    canActivate: [authGuard]
+    loadComponent: () => import('./features/portfolio/portfolio.component').then(m => m.PortfolioComponent)
   },
   {
     path: 'trading',
-    loadChildren: () => import('./features/trading/trading.routes').then(m => m.tradingRoutes),
-    canActivate: [authGuard]
+    loadComponent: () => import('./features/trading/trading.component').then(m => m.TradingComponent)
   },
   {
     path: 'market',
-    loadChildren: () => import('./features/market/market.routes').then(m => m.marketRoutes),
-    canActivate: [authGuard]
+    loadComponent: () => import('./features/market/market.component').then(m => m.MarketComponent)
   },
   {
     path: 'risk',
-    loadChildren: () => import('./features/risk/risk.routes').then(m => m.riskRoutes),
-    canActivate: [authGuard]
+    loadComponent: () => import('./features/risk/risk.component').then(m => m.RiskComponent)
   },
   {
     path: 'profile',
-    loadChildren: () => import('./features/profile/profile.routes').then(m => m.profileRoutes),
-    canActivate: [authGuard]
+    loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
   },
   {
     path: '**',
-    redirectTo: '/dashboard'
+    redirectTo: '/auth/login'
   }
 ];

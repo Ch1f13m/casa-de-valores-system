@@ -3,17 +3,33 @@
 <head>
   <meta charset="utf-8">
   <title>Casa de Valores - Sistema de Información</title>
+  <meta name="description" content="Plataforma digital para gestión de portafolios, trading y análisis de riesgo en el mercado de valores.">
+  <meta name="keywords" content="casa de valores, trading, portafolios, inversión, mercado de valores">
   <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#1976d2">
+  
+  <!-- Accesibilidad -->
+  <meta name="color-scheme" content="light">
+  <meta name="format-detection" content="telephone=no">
 </head>
 <body class="mat-typography">
-  <app-root></app-root>
-  <noscript>Por favor habilite JavaScript para continuar usando esta aplicación.</noscript>
+  <!-- Skip to main content link for keyboard navigation -->
+  <a href="#main-content" class="skip-link">Ir al contenido principal</a>
+  
+  <app-root id="main-content"></app-root>
+  
+  <noscript>
+    <div style="padding: 20px; text-align: center; background: #fff3cd; color: #856404; border: 1px solid #ffeaa7;">
+      <h2>JavaScript Requerido</h2>
+      <p>Por favor habilite JavaScript en su navegador para continuar usando esta aplicación.</p>
+      <p>Esta aplicación requiere JavaScript para funcionar correctamente.</p>
+    </div>
+  </noscript>
 </body>
 </html>

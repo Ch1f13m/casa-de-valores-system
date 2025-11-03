@@ -61,7 +61,7 @@ interface ActivityLog {
           </div>
           <div class="header-info">
             <h1>{{ userProfile().fullName }}</h1>
-            <p class="username">@{{ userProfile().username }}</p>
+            <p class="username">{{ '@' + userProfile().username }}</p>
             <mat-chip class="role-chip">{{ getRoleLabel(userProfile().role) }}</mat-chip>
           </div>
         </div>
@@ -221,17 +221,14 @@ interface ActivityLog {
                       <p>Agrega una capa extra de seguridad a tu cuenta</p>
                     </div>
                   </div>
-                  @if (userProfile().has2FA) {
-                    <button mat-raised-button color="warn" (click)="disable2FA()">
-                      <mat-icon>block</mat-icon>
-                      Desactivar 2FA
-                    </button>
-                  } @else {
-                    <button mat-raised-button color="primary" (click)="setup2FA()">
-                      <mat-icon>security</mat-icon>
-                      Activar 2FA
-                    </button>
-                  }
+                  <button *ngIf="userProfile().has2FA" mat-raised-button color="warn" (click)="disable2FA()">
+                    <mat-icon>block</mat-icon>
+                    Desactivar 2FA
+                  </button>
+                  <button *ngIf="!userProfile().has2FA" mat-raised-button color="primary" (click)="setup2FA()">
+                    <mat-icon>security</mat-icon>
+                    Activar 2FA
+                  </button>
                 </div>
               </mat-card-content>
             </mat-card>
@@ -406,7 +403,7 @@ interface ActivityLog {
               </mat-card-header>
               <mat-card-content>
                 <mat-list>
-                  @for (activity of activityLogs(); track activity.timestamp) {
+                  <ng-container *ngFor="let activity of activityLogs()">
                     <mat-list-item>
                       <mat-icon matListItemIcon>{{ getActivityIcon(activity.action) }}</mat-icon>
                       <div matListItemTitle>{{ activity.action }}</div>
@@ -418,7 +415,7 @@ interface ActivityLog {
                       </div>
                     </mat-list-item>
                     <mat-divider></mat-divider>
-                  }
+                  </ng-container>
                 </mat-list>
               </mat-card-content>
             </mat-card>
